@@ -312,6 +312,10 @@ function M:fix_cursorline()
   if not self:win_valid() then
     return
   end
+  -- If the user explicitly disabled cursorline, never override it
+  if self.opts.wo and self.opts.wo.cursorline == false then
+    return
+  end
   self:wo({ cursorline = vim.fn.mode() ~= "t" and vim.api.nvim_get_current_win() == self.win })
 end
 
