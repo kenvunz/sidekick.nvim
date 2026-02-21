@@ -101,6 +101,9 @@ function M.toggle(opts)
   opts = filter_opts(opts)
   State.with(function(state, attached)
     if not state.terminal then
+      if state.external and state.session then
+        state.session:focus()
+      end
       return
     end
     if not attached then
@@ -122,6 +125,9 @@ function M.focus(opts)
   opts = filter_opts(opts)
   State.with(function(state)
     if not state.terminal then
+      if state.external and state.session then
+        state.session:focus()
+      end
       return
     end
     if state.terminal:is_focused() then

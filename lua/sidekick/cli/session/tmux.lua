@@ -195,4 +195,16 @@ function M:dump()
   return ret
 end
 
+function M:focus()
+  local pane_id = self:pane_id()
+  if not pane_id then
+    return
+  end
+  -- switch-client first so cross-session panes become visible, then select the pane
+  if self.mux_session then
+    Util.exec({ "tmux", "switch-client", "-t", self.mux_session }, { notify = false })
+  end
+  Util.exec({ "tmux", "select-pane", "-t", pane_id })
+end
+
 return M
