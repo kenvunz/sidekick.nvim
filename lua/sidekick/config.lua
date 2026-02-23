@@ -98,7 +98,7 @@ local defaults = {
     --- Actual cli tool config is loaded from the runtime path `sk/cli/{tool}.lua` and merged with the config below.
     --- For default configs, see https://github.com/folke/sidekick.nvim/tree/main/sk/cli
     -- stylua: ignore
-    ---@type table<string, sidekick.cli.Config|{}>
+    ---@type table<string, sidekick.cli.Config|{}|false>
     tools = {
       aider    = {},
       amazon_q = {},
@@ -271,8 +271,10 @@ end
 
 function M.tools()
   local ret = {} ---@type table<string, sidekick.cli.Tool>
-  for name in pairs(M.cli.tools) do
-    ret[name] = M.get_tool(name)
+  for name, cfg in pairs(M.cli.tools) do
+    if cfg ~= false then
+      ret[name] = M.get_tool(name)
+    end
   end
   return ret
 end
