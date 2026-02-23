@@ -164,6 +164,13 @@ function M:pane_id()
   return self.tmux_pane_id
 end
 
+function M:focus()
+  local pane_id = self:pane_id()
+  if pane_id then
+    Util.exec({ "tmux", "select-pane", "-t", pane_id })
+  end
+end
+
 ---Send text to a tmux pane
 function M:send(text)
   local function send()
