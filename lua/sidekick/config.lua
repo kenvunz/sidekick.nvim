@@ -98,7 +98,7 @@ local defaults = {
         size = 0.5, -- size of the split (0-1 for percentage)
       },
     },
-    ---@type table<string, sidekick.cli.Config|{}>
+    ---@type table<string, sidekick.cli.Config|{}|false>
     tools = {
       aider = { cmd = { "aider" } },
       amazon_q = { cmd = { "q" } },
@@ -276,8 +276,10 @@ end
 
 function M.tools()
   local ret = {} ---@type table<string, sidekick.cli.Tool>
-  for name in pairs(M.cli.tools) do
-    ret[name] = M.get_tool(name)
+  for name, cfg in pairs(M.cli.tools) do
+    if cfg ~= false then
+      ret[name] = M.get_tool(name)
+    end
   end
   return ret
 end
