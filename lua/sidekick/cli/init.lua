@@ -101,9 +101,6 @@ function M.toggle(opts)
   opts = filter_opts(opts)
   State.with(function(state, attached)
     if not state.terminal then
-      if state.session and state.session.focus and opts.focus ~= false then
-        state.session:focus()
-      end
       return
     end
     if not attached then
