@@ -41,11 +41,16 @@ function M:start()
     self:add_cmd(cmd)
     self:spawn(cmd)
     Util.info(("Started **%s** in a new tmux window"):format(self.tool.name))
-  elseif Config.cli.mux.create == "split" then
+  elseif type(Config.cli.mux.create) == "function" or Config.cli.mux.create == "split" then
+    local split = type(Config.cli.mux.create) == "function" and Config.cli.mux.create() or {}
+    local vertical = split.vertical == nil and Config.cli.mux.split.vertical or split.vertical
+    local size = split.size or Config.cli.mux.split.size
     local cmd = { "tmux", "split-window", "-dP", "-c", self.cwd, "-F", PANE_FORMAT }
-    cmd[#cmd + 1] = Config.cli.mux.split.vertical and "-h" or "-v"
-    local size = Config.cli.mux.split.size
-    vim.list_extend(cmd, { "-l", tostring(size <= 1 and ((size * 100) .. "%") or size) })
+    cmd[#cmd + 1] = vertical and "-h" or "-v"
+    vim.list_extend(cmd, { "-l", type(size) == "string" and size or tostring(size <= 1 and ((size * 100) .. "%") or size) })
+    if split.target then
+      vim.list_extend(cmd, { "-t", split.target })
+    end
     self:add_cmd(cmd)
     self:spawn(cmd)
     Util.info(("Started **%s** in a new tmux split"):format(self.tool.name))
