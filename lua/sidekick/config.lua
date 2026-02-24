@@ -91,8 +91,13 @@ local defaults = {
       -- terminal: new sessions will be created for each CLI tool and shown in a Neovim terminal
       -- window: when run inside a terminal multiplexer, new sessions will be created in a new tab
       -- split: when run inside a terminal multiplexer, new sessions will be created in a new split
+      -- fun(): called with no args; return a sidekick.cli.mux.SplitOpts table to control the split
       -- NOTE: zellij only supports `terminal`
-      create = "terminal", ---@type "terminal"|"window"|"split"
+      create = "terminal", ---@type "terminal"|"window"|"split"|fun(): sidekick.cli.mux.SplitOpts
+      ---@class sidekick.cli.mux.SplitOpts
+      ---@field vertical? boolean  true=-h (right), false=-v (bottom); defaults to mux.split.vertical
+      ---@field size? number|string  e.g. 0.4, "40%", 20; defaults to mux.split.size
+      ---@field target? string  tmux pane_id to split from
       split = {
         vertical = true, -- vertical or horizontal split
         size = 0.5, -- size of the split (0-1 for percentage)
@@ -225,7 +230,9 @@ function M.setup(opts)
 
     M.validate("cli.win.layout", { "float", "left", "bottom", "top", "right" })
     M.validate("cli.mux.backend", { "tmux", "zellij" })
-    M.validate("cli.mux.create", { "terminal", "window", "split" })
+    if type(vim.tbl_get(config, "cli", "mux", "create")) ~= "function" then
+      M.validate("cli.mux.create", { "terminal", "window", "split" })
+    end
   end)
 end
 
