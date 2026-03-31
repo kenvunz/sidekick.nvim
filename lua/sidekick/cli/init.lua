@@ -176,19 +176,25 @@ function M.send(opts)
     opts.msg = "{selection}"
   end
 
-  local msg, text = "", opts.text ---@type string?, sidekick.Text[]?
-  if not text then
-    msg, text = M.render(opts)
-    if msg == "" or not text then
-      Util.warn("Nothing to send.")
-      return
-    elseif msg == "\n" then
-      msg = "" -- allow sending a new line
-      text = {}
-    end
-  end
+  -- Capture context eagerly to preserve visual selection before any async
+  local ctx = not opts.text and Context.get() or nil
 
   State.with(function(state)
+    local msg, text = "", opts.text ---@type string?, sidekick.Text[]?
+    if not text then
+      -- Use session cwd so {file} resolves relative to the active CLI's project
+      if state.session and state.session.cwd then
+        ctx.ctx.cwd = vim.fs.normalize(state.session.cwd)
+      end
+      msg, text = ctx:render(opts)
+      if msg == "" or not text then
+        Util.warn("Nothing to send.")
+        return
+      elseif msg == "\n" then
+        msg = ""
+        text = {}
+      end
+    end
     Util.exit_visual_mode()
     vim.schedule(function()
       msg = state.tool:format(text)
